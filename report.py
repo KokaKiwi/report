@@ -9,7 +9,7 @@ Options:
     -h --help           Show this help and exit.
     -v --version        Show program version and exit.
     -q --quiet          Quiet mode.
-    -c --config FILE    Config file. [default: conf.toml]
+    -c --config FILE    Config file. [default: conf.yml]
     [<bugdirs>]...      Bug directories.
 """
 import os
@@ -17,7 +17,7 @@ import io
 import tempfile
 import shutil
 import subprocess
-import toml
+import yaml
 from prompter import prompt
 from docopt import docopt
 from gist import Gist
@@ -28,11 +28,9 @@ __version__ = '0.1.0'
 here = os.path.dirname(__file__)
 here = os.path.abspath(here)
 
-SCHEMA_FILENAME = 'schema.toml'
+SCHEMA_FILENAME = 'schema.yml'
 
 QUIET = False
-
-CMD_LINE = '$ {cmd}\n'
 
 # WTF prompter? With default='no' return True?!
 def yesno(msg, default = True, **kwargs):
@@ -46,11 +44,6 @@ def yesno(msg, default = True, **kwargs):
     return r
 
 def run_command(cwd, cmd, out = None, inf = None, env = None):
-    if not QUIET:
-        print('Running:', cmd)
-
-    out.write(CMD_LINE.format(cmd = cmd))
-
     args = {}
     args['cwd'] = cwd
     args['env'] = env
@@ -81,7 +74,7 @@ class Report(object):
 
         schema_file = os.path.join(self.bugdir, SCHEMA_FILENAME)
         with open(schema_file) as f:
-            self.schema = toml.loads(f.read())
+            self.schema = yaml.load(f.read())
 
     def __call__(self):
         commands = self.run_commands()
@@ -102,13 +95,15 @@ class Report(object):
     def run_commands(self):
         commands = {}
 
-        for entry in self.schema.get('commands', []):
+        for entry in self.schema.get('steps', []):
             out = io.StringIO()
 
-            for cmd in entry.get('command', []):
+            for cmd in entry.get('commands', []):
                 command = cmd.get('command')
                 if not isinstance(command, str):
                     continue
+
+                line = '$ ' + command
 
                 env = cmd.get('env')
 
@@ -120,9 +115,12 @@ class Report(object):
                 inf = None
                 cmd_input = cmd.get('input')
                 if isinstance(cmd_input, str):
+                    line += ' < ' + cmd_input
                     in_file = os.path.join(self.bugdir, cmd_input)
                     inf = open(in_file)
 
+                print(line)
+                out.write(line + '\n')
                 run_command(cwd, command, out = out, inf = inf, env = env)
 
             filename = entry.get('file')
@@ -154,7 +152,7 @@ class Report(object):
 def main(bugdirs, conf_filename):
     conf_file = os.path.join(here, conf_filename)
     with open(conf_file) as f:
-        conf = toml.loads(f.read())
+        conf = yaml.load(f.read())
 
     for bugdir in bugdirs:
         report = Report(conf, bugdir)

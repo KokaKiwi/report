@@ -5,7 +5,7 @@ ACTIVATE_SCRIPT="${VENV_DIR}/bin/activate"
 
 packages=(
     docopt
-    toml
+    pyyaml
     requests
     prompter
 )

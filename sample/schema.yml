@@ -1,0 +1,15 @@
+title: Sample bug
+
+files:
+- toto.txt
+
+steps:
+-
+    file: output.txt
+    commands:
+    -
+        command: cat -e
+        input: toto.txt
+        env:
+            TOTO: hello
+
