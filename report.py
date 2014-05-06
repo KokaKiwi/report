@@ -92,10 +92,18 @@ class Report(object):
     def title(self):
         return self.schema.get('title')
 
+    @property
+    def steps(self):
+        return self.schema.get('steps', [])
+
+    @property
+    def files(self):
+        return self.schema.get('files', [])
+
     def run_commands(self):
         commands = {}
 
-        for entry in self.schema.get('steps', []):
+        for entry in self.steps:
             out = io.StringIO()
 
             for cmd in entry.get('commands', []):
@@ -137,7 +145,7 @@ class Report(object):
         gist = Gist(username = username, api_key = api_key, public = public)
         gist.description = self.title
 
-        for filename in self.schema.get('files', []):
+        for filename in self.files:
             path = os.path.join(self.bugdir, filename)
             with open(path) as f:
                 content = f.read()
