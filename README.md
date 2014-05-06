@@ -31,4 +31,10 @@ Options:
     [<bugdirs>]...      Bug directories.
 ```
 
-See `sample` directory to see an example usage.
+See `sample` directory to see an sample schema.
+
+And type:
+
+```
+[.venv] $ ./report.py sample
+```
