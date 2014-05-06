@@ -3,6 +3,16 @@ report
 
 Bug report utility.
 
+Installation
+============
+
+In the repository directory:
+
+```
+$ ./env_setup.sh
+$ source .venv/bin/activate
+```
+
 Usage
 =====
 
@@ -20,3 +30,5 @@ Options:
     -c --config FILE    Config file. [default: conf.toml]
     [<bugdirs>]...      Bug directories.
 ```
+
+See `sample` directory to see an example usage.
